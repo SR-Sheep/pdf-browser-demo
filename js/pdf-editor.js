@@ -51,7 +51,7 @@ class PDFEditor {
 
             // Canvas 좌표를 PDF 좌표로 변환
             const pdfX = element.x * scale;
-            const pdfY = pdfHeight - (element.y * scale) - (element.fontSize * scale);
+            const pdfY = pdfHeight - (element.y * scale) - (element.height * scale);
 
             // 텍스트를 이미지로 렌더링 (한글 지원)
             const textImage = await this.renderTextAsImage(element);
