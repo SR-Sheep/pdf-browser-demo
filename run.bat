@@ -1,10 +1,11 @@
 @echo off
+chcp 65001 >nul
 echo.
 echo ========================================
-echo   PDF Editor 서버 시작 중...
+echo   PDF Editor server starting...
 echo ========================================
 echo.
-echo 로컬 접속: http://localhost:17722
-echo 외부 접속: http://[내부IP]:17722
+echo Local access: http://localhost:17722
+echo External access: http://[Your-IP]:17722
 echo.
 python -m http.server 17722 --bind 0.0.0.0
