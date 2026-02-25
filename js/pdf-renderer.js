@@ -100,11 +100,44 @@ class PDFRenderer {
         return this.totalPages;
     }
 
-    setZoom(scale) {
+    async setZoom(scale) {
         this.scale = scale;
         if (this.currentPageObj) {
-            this.renderPage(this.currentPage);
+            await this.renderPage(this.currentPage);
         }
+        return this.scale;
+    }
+
+    getZoom() {
+        return this.scale;
+    }
+
+    async zoomIn() {
+        const newScale = Math.min(this.scale + 0.25, 3.0); // 최대 300%
+        return await this.setZoom(newScale);
+    }
+
+    async zoomOut() {
+        const newScale = Math.max(this.scale - 0.25, 0.5); // 최소 50%
+        return await this.setZoom(newScale);
+    }
+
+    async fitWidth(containerWidth) {
+        if (!this.currentPageObj) return this.scale;
+
+        const originalViewport = this.currentPageObj.getViewport({ scale: 1.0 });
+        const newScale = (containerWidth - 40) / originalViewport.width; // 40px 여백
+        return await this.setZoom(newScale);
+    }
+
+    async fitPage(containerWidth, containerHeight) {
+        if (!this.currentPageObj) return this.scale;
+
+        const originalViewport = this.currentPageObj.getViewport({ scale: 1.0 });
+        const scaleWidth = (containerWidth - 40) / originalViewport.width;
+        const scaleHeight = (containerHeight - 40) / originalViewport.height;
+        const newScale = Math.min(scaleWidth, scaleHeight);
+        return await this.setZoom(newScale);
     }
 
     getOriginalPageDimensions() {

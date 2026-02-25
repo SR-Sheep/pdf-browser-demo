@@ -120,6 +120,7 @@ class PDFEditorApp {
                 this.pdfRenderer.getCurrentPage(),
                 this.pdfRenderer.getTotalPages()
             );
+            this.toolbar.updateZoomLevel(this.pdfRenderer.getZoom());
 
             console.log('PDF 로드 완료:', file.name);
         } catch (error) {
@@ -615,6 +616,60 @@ class PDFEditorApp {
             // 페이지별 요소 렌더링
             this.renderElements();
         }
+    }
+
+    async zoomIn() {
+        const newScale = await this.pdfRenderer.zoomIn();
+        this.toolbar.updateZoomLevel(newScale);
+
+        // 오버레이 크기 조정
+        const dimensions = this.pdfRenderer.getPageDimensions();
+        this.overlay.style.width = dimensions.width + 'px';
+        this.overlay.style.height = dimensions.height + 'px';
+
+        // 요소 위치 재조정
+        this.renderElements();
+    }
+
+    async zoomOut() {
+        const newScale = await this.pdfRenderer.zoomOut();
+        this.toolbar.updateZoomLevel(newScale);
+
+        // 오버레이 크기 조정
+        const dimensions = this.pdfRenderer.getPageDimensions();
+        this.overlay.style.width = dimensions.width + 'px';
+        this.overlay.style.height = dimensions.height + 'px';
+
+        // 요소 위치 재조정
+        this.renderElements();
+    }
+
+    async fitWidth() {
+        const container = document.getElementById('pdf-editor-container');
+        const newScale = await this.pdfRenderer.fitWidth(container.clientWidth);
+        this.toolbar.updateZoomLevel(newScale);
+
+        // 오버레이 크기 조정
+        const dimensions = this.pdfRenderer.getPageDimensions();
+        this.overlay.style.width = dimensions.width + 'px';
+        this.overlay.style.height = dimensions.height + 'px';
+
+        // 요소 위치 재조정
+        this.renderElements();
+    }
+
+    async fitPage() {
+        const container = document.getElementById('pdf-editor-container');
+        const newScale = await this.pdfRenderer.fitPage(container.clientWidth, container.clientHeight);
+        this.toolbar.updateZoomLevel(newScale);
+
+        // 오버레이 크기 조정
+        const dimensions = this.pdfRenderer.getPageDimensions();
+        this.overlay.style.width = dimensions.width + 'px';
+        this.overlay.style.height = dimensions.height + 'px';
+
+        // 요소 위치 재조정
+        this.renderElements();
     }
 }
 
