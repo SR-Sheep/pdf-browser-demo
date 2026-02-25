@@ -366,6 +366,9 @@ class PDFEditorApp {
         }
 
         try {
+            // 다운로드 전에 현재 페이지의 요소들의 실제 크기를 업데이트
+            this.updateElementSizesFromDOM();
+
             const canvasDimensions = this.pdfRenderer.getPageDimensions();
             const pdfBytes = await this.pdfEditor.exportPDF(
                 this.pdfFile,
@@ -379,6 +382,25 @@ class PDFEditorApp {
             console.error('PDF 다운로드 실패:', error);
             alert('PDF를 다운로드할 수 없습니다: ' + error.message);
         }
+    }
+
+    updateElementSizesFromDOM() {
+        // 현재 화면에 보이는 모든 요소의 실제 크기를 데이터에 반영
+        const elementDivs = this.overlay.querySelectorAll('.pdf-element');
+        elementDivs.forEach(div => {
+            const id = div.dataset.id;
+            const element = this.elementManager.getElementById(id);
+            if (element) {
+                const rect = div.getBoundingClientRect();
+                const width = parseFloat(div.style.width) || rect.width;
+                const height = parseFloat(div.style.height) || rect.height;
+
+                this.elementManager.updateElement(id, {
+                    width: width,
+                    height: height
+                });
+            }
+        });
     }
 
     renderElements() {
