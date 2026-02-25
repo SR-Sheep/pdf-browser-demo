@@ -8,23 +8,30 @@ class PDFEditor {
         this.originalPdfBytes = arrayBuffer;
     }
 
-    async exportPDF(originalPdfFile, elements, canvasDimensions) {
+    async exportPDF(originalPdfFile, elementsByPage, canvasDimensions) {
         try {
             // 원본 PDF 로드
             const arrayBuffer = await originalPdfFile.arrayBuffer();
             const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
 
-            // 첫 페이지 가져오기 (다중 페이지는 향후 구현)
+            // 모든 페이지 가져오기
             const pages = pdfDoc.getPages();
-            const firstPage = pages[0];
-            const { width: pdfWidth, height: pdfHeight } = firstPage.getSize();
 
-            // 각 요소를 PDF에 추가
-            for (const element of elements) {
-                if (element.type === 'text') {
-                    await this.addTextElement(pdfDoc, firstPage, element, pdfHeight, canvasDimensions);
-                } else if (element.type === 'image') {
-                    await this.addImageElement(pdfDoc, firstPage, element, pdfHeight, canvasDimensions);
+            // 각 페이지별로 요소 추가
+            for (const [pageNum, elements] of Object.entries(elementsByPage)) {
+                const pageIndex = parseInt(pageNum) - 1; // 페이지 번호는 1부터 시작, 인덱스는 0부터
+                if (pageIndex < 0 || pageIndex >= pages.length) continue;
+
+                const page = pages[pageIndex];
+                const { width: pdfWidth, height: pdfHeight } = page.getSize();
+
+                // 각 요소를 PDF에 추가
+                for (const element of elements) {
+                    if (element.type === 'text') {
+                        await this.addTextElement(pdfDoc, page, element, pdfHeight, canvasDimensions);
+                    } else if (element.type === 'image') {
+                        await this.addImageElement(pdfDoc, page, element, pdfHeight, canvasDimensions);
+                    }
                 }
             }
 
@@ -78,10 +85,20 @@ class PDFEditor {
                 // 폰트 설정
                 ctx.font = `${element.fontSize}px ${element.fontFamily}`;
 
-                // 텍스트 크기 측정
-                const metrics = ctx.measureText(element.content);
-                const textWidth = metrics.width;
-                const textHeight = element.fontSize * 1.5; // 여유 공간 포함
+                // 여러 줄 텍스트 처리
+                const lines = element.content.split('\n');
+                const lineHeight = element.fontSize * 1.4; // 줄 간격
+
+                // 최대 텍스트 너비 계산
+                let maxWidth = 0;
+                lines.forEach(line => {
+                    const metrics = ctx.measureText(line);
+                    maxWidth = Math.max(maxWidth, metrics.width);
+                });
+
+                // 캔버스 크기 설정 (텍스트 박스 크기 또는 측정된 크기)
+                const textWidth = Math.max(maxWidth, element.width || 200);
+                const textHeight = Math.max(lines.length * lineHeight, element.height || 60);
 
                 // 캔버스 크기 설정 (고해상도)
                 const dpi = 2;
@@ -99,8 +116,10 @@ class PDFEditor {
                 ctx.fillStyle = element.color;
                 ctx.textBaseline = 'top';
 
-                // 텍스트 그리기
-                ctx.fillText(element.content, 0, 0);
+                // 여러 줄 텍스트 그리기
+                lines.forEach((line, index) => {
+                    ctx.fillText(line, 0, index * lineHeight);
+                });
 
                 // PNG로 변환
                 const dataUrl = canvas.toDataURL('image/png');

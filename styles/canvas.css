@@ -40,34 +40,40 @@
     pointer-events: auto;
     cursor: move;
     user-select: none;
-    border: 2px dashed transparent;
-    min-width: 100px;
-    min-height: 40px;
+    border: 1px solid transparent;
+    min-width: 50px;
+    min-height: 30px;
     padding: 8px;
     white-space: pre-wrap;
     word-break: break-word;
     line-height: 1.4;
+    box-sizing: border-box;
 }
 
-.pdf-element:hover {
-    border-color: #007bff;
-    background-color: rgba(255, 255, 255, 0.8);
+.pdf-element.text-element {
+    background-color: rgba(255, 255, 255, 0.85);
+}
+
+.pdf-element:hover:not(.editing) {
+    border-color: #aaa;
 }
 
 .pdf-element.selected {
     border-color: #007bff;
-    border-style: solid;
-    background-color: rgba(255, 255, 255, 0.9);
+    border-width: 2px;
+    background-color: rgba(255, 255, 255, 0.95);
+}
+
+.pdf-element.editing {
+    border-color: #007bff;
+    border-width: 2px;
+    cursor: text;
 }
 
 .pdf-element.dragging {
     opacity: 0.7;
     z-index: 1000;
-}
-
-.pdf-element.text-element {
-    background-color: rgba(255, 255, 255, 0.85);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    cursor: move !important;
 }
 
 .pdf-element.image-element {
@@ -80,3 +86,30 @@
     height: 100%;
     pointer-events: none;
 }
+
+/* 리사이즈 핸들 스타일 */
+.resize-handle {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: white;
+    border: 1px solid #007bff;
+    display: none;
+    z-index: 10;
+}
+
+.pdf-element.selected .resize-handle {
+    display: block;
+}
+
+/* 각 핸들 위치 */
+.resize-nw { top: -4px; left: -4px; cursor: nw-resize; }
+.resize-n  { top: -4px; left: 50%; transform: translateX(-50%); cursor: n-resize; }
+.resize-ne { top: -4px; right: -4px; cursor: ne-resize; }
+.resize-e  { top: 50%; right: -4px; transform: translateY(-50%); cursor: e-resize; }
+.resize-se { bottom: -4px; right: -4px; cursor: se-resize; }
+.resize-s  { bottom: -4px; left: 50%; transform: translateX(-50%); cursor: s-resize; }
+.resize-sw { bottom: -4px; left: -4px; cursor: sw-resize; }
+.resize-w  { top: 50%; left: -4px; transform: translateY(-50%); cursor: w-resize; }
+
+/* 크기 조절 관련 스타일은 제거 - 미리보기 박스로 처리 */

@@ -1,8 +1,26 @@
-// 요소 관리 클래스
+// 요소 관리 클래스 (페이지별 관리)
 class ElementManager {
     constructor() {
-        this.elements = [];
+        this.elementsByPage = {}; // 페이지별 요소 저장
+        this.currentPage = 1;
         this.selectedElementId = null;
+    }
+
+    // 현재 페이지 설정
+    setCurrentPage(pageNum) {
+        this.currentPage = pageNum;
+        if (!this.elementsByPage[pageNum]) {
+            this.elementsByPage[pageNum] = [];
+        }
+        this.selectedElementId = null; // 페이지 변경 시 선택 해제
+    }
+
+    // 현재 페이지 요소 배열 가져오기
+    get elements() {
+        if (!this.elementsByPage[this.currentPage]) {
+            this.elementsByPage[this.currentPage] = [];
+        }
+        return this.elementsByPage[this.currentPage];
     }
 
     // 텍스트 요소 추가
@@ -10,14 +28,15 @@ class ElementManager {
         const element = {
             id: generateUniqueId(),
             type: 'text',
+            page: this.currentPage,
             x: x,
             y: y,
-            content: content || '텍스트를 입력하세요',
+            content: content || '',
             fontSize: style.fontSize || 16,
             fontFamily: style.fontFamily || 'Helvetica',
             color: style.color || '#000000',
-            width: 'auto',
-            height: 'auto'
+            width: style.width || 200,  // 실제 픽셀 값
+            height: style.height || 60  // 실제 픽셀 값
         };
 
         this.elements.push(element);
@@ -29,6 +48,7 @@ class ElementManager {
         const element = {
             id: generateUniqueId(),
             type: 'image',
+            page: this.currentPage,
             x: x,
             y: y,
             imageData: imageData,
@@ -109,9 +129,16 @@ class ElementManager {
         return null;
     }
 
-    // 모든 요소 삭제
-    clearElements() {
-        this.elements = [];
+    // 모든 요소 삭제 (모든 페이지)
+    clearAllElements() {
+        this.elementsByPage = {};
+        this.currentPage = 1;
+        this.selectedElementId = null;
+    }
+
+    // 현재 페이지 요소만 삭제
+    clearCurrentPageElements() {
+        this.elementsByPage[this.currentPage] = [];
         this.selectedElementId = null;
     }
 

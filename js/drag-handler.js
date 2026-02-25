@@ -21,6 +21,12 @@ class DragHandler {
         const elementDiv = e.target.closest('.pdf-element');
         if (!elementDiv) return;
 
+        // 리사이즈 핸들이면 무시
+        if (e.target.classList.contains('resize-handle')) return;
+
+        // 편집 모드면 드래그 불가
+        if (elementDiv.classList.contains('editing') || elementDiv.querySelector('textarea')) return;
+
         this.isDragging = true;
         this.currentElement = elementDiv;
 
