@@ -106,7 +106,7 @@ class PDFEditorApp {
             this.canvas.style.display = 'block';
 
             // 요소 초기화
-            this.elementManager.clearElements();
+            this.elementManager.clearAllElements();
             this.renderElements();
 
             // 오버레이 크기 조정
