@@ -15,6 +15,7 @@ class PDFEditorApp {
         this.noPdfMessage = document.getElementById('no-pdf-message');
         this.canvas = document.getElementById('pdf-canvas');
         this.overlay = document.getElementById('elements-overlay');
+        this.isAddingText = false; // 텍스트 추가 모드
 
         this.init();
     }
@@ -25,26 +26,42 @@ class PDFEditorApp {
     }
 
     setupEventListeners() {
-        // 요소 클릭 (선택)
+        // 오버레이 클릭 (텍스트 추가 모드 또는 요소 선택)
         this.overlay.addEventListener('click', (e) => {
-            this.handleElementClick(e);
+            if (this.isAddingText) {
+                this.handleAddTextClick(e);
+            } else {
+                this.handleElementClick(e);
+            }
         });
 
         // 요소 더블클릭 (텍스트 편집)
         this.overlay.addEventListener('dblclick', (e) => {
-            this.handleElementDoubleClick(e);
-        });
-
-        // 배경 클릭 (선택 해제)
-        document.getElementById('pdf-editor-container').addEventListener('click', (e) => {
-            if (e.target.id === 'pdf-editor-container' || e.target.id === 'pdf-canvas') {
-                this.deselectAllElements();
+            if (!this.isAddingText) {
+                this.handleElementDoubleClick(e);
             }
         });
 
-        // 키보드 이벤트 (Delete 키)
+        // 배경 클릭 (선택 해제 또는 텍스트 추가 모드 취소)
+        document.getElementById('pdf-editor-container').addEventListener('click', (e) => {
+            if (e.target.id === 'pdf-editor-container' || e.target.id === 'pdf-canvas') {
+                if (this.isAddingText) {
+                    this.cancelAddTextMode();
+                } else {
+                    this.deselectAllElements();
+                }
+            }
+        });
+
+        // 키보드 이벤트
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Delete' || e.key === 'Backspace') {
+            // Esc로 텍스트 추가 모드 취소
+            if (e.key === 'Escape' && this.isAddingText) {
+                this.cancelAddTextMode();
+                e.preventDefault();
+            }
+            // Delete 키로 요소 삭제
+            else if (e.key === 'Delete' || e.key === 'Backspace') {
                 const selectedElement = this.elementManager.getSelectedElement();
                 if (selectedElement && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
                     this.deleteSelectedElement();
@@ -92,12 +109,36 @@ class PDFEditorApp {
     }
 
     addText() {
+        // 텍스트 추가 모드 활성화
+        this.isAddingText = true;
+        this.overlay.style.cursor = 'crosshair';
+        this.canvas.style.cursor = 'crosshair';
+
+        // 툴바 버튼 상태 표시
+        document.getElementById('add-text-btn').style.backgroundColor = '#007bff';
+        document.getElementById('add-text-btn').style.color = 'white';
+    }
+
+    handleAddTextClick(e) {
+        // 요소를 클릭한 경우 무시
+        if (e.target.closest('.pdf-element')) {
+            return;
+        }
+
+        const rect = this.overlay.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        // 텍스트 요소 생성
         const element = this.elementManager.addTextElement(
-            100,
-            100,
+            x,
+            y,
             '',
             { fontSize: 16, fontFamily: 'Helvetica', color: '#000000' }
         );
+
+        // 텍스트 추가 모드 종료
+        this.cancelAddTextMode();
 
         this.renderElements();
         this.selectElement(element.id);
@@ -109,6 +150,16 @@ class PDFEditorApp {
                 this.makeTextEditable(elementDiv, element);
             }
         }, 0);
+    }
+
+    cancelAddTextMode() {
+        this.isAddingText = false;
+        this.overlay.style.cursor = '';
+        this.canvas.style.cursor = '';
+
+        // 툴바 버튼 상태 복원
+        document.getElementById('add-text-btn').style.backgroundColor = '';
+        document.getElementById('add-text-btn').style.color = '';
     }
 
     async addImage(file) {
