@@ -223,12 +223,36 @@ class PDFEditorApp {
 
             isMouseDown = false;
 
+            // 페이지 경계 가져오기
+            const pageWidth = parseFloat(this.overlay.style.width);
+            const pageHeight = parseFloat(this.overlay.style.height);
+
             if (isDragging && dragRect) {
                 // 드래그한 크기로 텍스트 박스 생성
-                const width = Math.max(50, parseFloat(dragRect.style.width));
-                const height = Math.max(30, parseFloat(dragRect.style.height));
-                const x = parseFloat(dragRect.style.left);
-                const y = parseFloat(dragRect.style.top);
+                let width = Math.max(50, parseFloat(dragRect.style.width));
+                let height = Math.max(30, parseFloat(dragRect.style.height));
+                let x = parseFloat(dragRect.style.left);
+                let y = parseFloat(dragRect.style.top);
+
+                // 페이지 경계 내로 제한
+                if (x + width > pageWidth) {
+                    width = pageWidth - x;
+                }
+                if (y + height > pageHeight) {
+                    height = pageHeight - y;
+                }
+                if (x < 0) {
+                    width += x;
+                    x = 0;
+                }
+                if (y < 0) {
+                    height += y;
+                    y = 0;
+                }
+
+                // 최소 크기 유지
+                width = Math.max(50, width);
+                height = Math.max(30, height);
 
                 dragRect.remove();
                 dragRect = null;
@@ -248,9 +272,22 @@ class PDFEditorApp {
                 }, 0);
             } else if (!isDragging) {
                 // 클릭만 한 경우 기본 크기로 생성
+                const defaultWidth = 200;
+                const defaultHeight = 60;
+                let x = startX;
+                let y = startY;
+
+                // 페이지 경계를 벗어나지 않도록 조정
+                if (x + defaultWidth > pageWidth) {
+                    x = Math.max(0, pageWidth - defaultWidth);
+                }
+                if (y + defaultHeight > pageHeight) {
+                    y = Math.max(0, pageHeight - defaultHeight);
+                }
+
                 const element = this.elementManager.addTextElement(
-                    startX, startY, '',
-                    { fontSize: 16, fontFamily: 'Helvetica', color: '#000000' }
+                    x, y, '',
+                    { fontSize: 16, fontFamily: 'Helvetica', color: '#000000', width: defaultWidth, height: defaultHeight }
                 );
 
                 this.cancelAddTextMode();
