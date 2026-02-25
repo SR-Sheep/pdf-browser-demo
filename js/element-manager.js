@@ -106,9 +106,20 @@ class ElementManager {
         return this.elements.find(el => el.id === this.selectedElementId);
     }
 
-    // ID로 요소 가져오기
+    // ID로 요소 가져오기 (현재 페이지)
     getElement(id) {
         return this.elements.find(el => el.id === id);
+    }
+
+    // ID로 요소 가져오기 (모든 페이지)
+    getElementById(id) {
+        for (const pageNum in this.elementsByPage) {
+            const element = this.elementsByPage[pageNum].find(el => el.id === id);
+            if (element) {
+                return element;
+            }
+        }
+        return null;
     }
 
     // 모든 요소 가져오기
