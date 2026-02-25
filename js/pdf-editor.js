@@ -60,9 +60,11 @@ class PDFEditor {
             const imageBytes = base64ToArrayBuffer(textImage);
             const pdfImage = await pdfDoc.embedPng(imageBytes);
 
-            // 이미지 크기 (이미 renderTextAsImage에서 원본 크기로 렌더링됨)
-            const imgWidth = pdfImage.width * scale;
-            const imgHeight = pdfImage.height * scale;
+            // 이미지 크기 계산
+            // renderTextAsImage에서 dpi=2로 2배 크기 캔버스를 만들었으므로
+            // 실제 텍스트 박스 크기에 맞게 조정
+            const imgWidth = element.width * scale;
+            const imgHeight = element.height * scale;
 
             // 이미지 그리기
             page.drawImage(pdfImage, {
