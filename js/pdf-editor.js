@@ -60,14 +60,16 @@ class PDFEditor {
             const imageBytes = base64ToArrayBuffer(textImage);
             const pdfImage = await pdfDoc.embedPng(imageBytes);
 
-            const imgDims = pdfImage.scale(scale);
+            // 이미지 크기 (이미 renderTextAsImage에서 원본 크기로 렌더링됨)
+            const imgWidth = pdfImage.width * scale;
+            const imgHeight = pdfImage.height * scale;
 
             // 이미지 그리기
             page.drawImage(pdfImage, {
                 x: pdfX,
                 y: pdfY,
-                width: imgDims.width,
-                height: imgDims.height
+                width: imgWidth,
+                height: imgHeight
             });
         } catch (error) {
             console.error('텍스트 요소 추가 실패:', error);
