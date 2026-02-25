@@ -233,56 +233,59 @@ class PDFEditorApp {
 
     makeTextEditable(elementDiv, element) {
         // 이미 편집 중이면 무시
-        if (elementDiv.querySelector('input')) return;
+        if (elementDiv.querySelector('textarea')) return;
 
         // 기존 텍스트 저장
         const originalText = element.content;
 
-        // input 요소 생성
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.value = originalText;
-        input.placeholder = '텍스트를 입력하세요';
-        input.style.width = '200px';
-        input.style.minWidth = '200px';
-        input.style.fontSize = element.fontSize + 'px';
-        input.style.fontFamily = element.fontFamily;
-        input.style.color = element.color;
-        input.style.border = '2px solid #007bff';
-        input.style.background = 'white';
-        input.style.padding = '4px';
-        input.style.outline = 'none';
-        input.style.boxSizing = 'border-box';
+        // textarea 요소 생성 (여러 줄 입력 지원)
+        const textarea = document.createElement('textarea');
+        textarea.value = originalText;
+        textarea.placeholder = '텍스트를 입력하세요';
+        textarea.style.width = '300px';
+        textarea.style.minWidth = '300px';
+        textarea.style.minHeight = '80px';
+        textarea.style.fontSize = element.fontSize + 'px';
+        textarea.style.fontFamily = element.fontFamily;
+        textarea.style.color = element.color;
+        textarea.style.border = '2px solid #007bff';
+        textarea.style.background = 'white';
+        textarea.style.padding = '8px';
+        textarea.style.outline = 'none';
+        textarea.style.boxSizing = 'border-box';
+        textarea.style.resize = 'both';
+        textarea.style.lineHeight = '1.4';
 
         // 기존 텍스트 숨기기
         elementDiv.textContent = '';
-        elementDiv.appendChild(input);
+        elementDiv.appendChild(textarea);
 
         // 드래그 비활성화
         elementDiv.style.cursor = 'text';
 
         // 자동 포커스 및 전체 선택
-        input.focus();
-        input.select();
+        textarea.focus();
+        textarea.select();
 
-        // Enter 키로 완료
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                this.finishTextEdit(elementDiv, element, input.value);
+        // Ctrl+Enter 또는 Esc로 완료
+        textarea.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                this.finishTextEdit(elementDiv, element, textarea.value);
+                e.preventDefault();
             } else if (e.key === 'Escape') {
                 this.finishTextEdit(elementDiv, element, originalText);
             }
         });
 
         // 포커스 잃으면 완료
-        input.addEventListener('blur', () => {
-            this.finishTextEdit(elementDiv, element, input.value);
+        textarea.addEventListener('blur', () => {
+            this.finishTextEdit(elementDiv, element, textarea.value);
         });
     }
 
     finishTextEdit(elementDiv, element, newText) {
-        // input이 이미 제거되었으면 무시
-        if (!elementDiv.querySelector('input')) return;
+        // textarea가 이미 제거되었으면 무시
+        if (!elementDiv.querySelector('textarea')) return;
 
         // 텍스트 업데이트
         if (newText.trim() !== '') {
