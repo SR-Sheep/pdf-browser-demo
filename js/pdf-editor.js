@@ -100,9 +100,9 @@ class PDFEditor {
                     maxWidth = Math.max(maxWidth, metrics.width);
                 });
 
-                // 캔버스 크기 설정 (텍스트 박스 크기 또는 측정된 크기)
-                const textWidth = Math.max(maxWidth, element.width || 200);
-                const textHeight = Math.max(lines.length * lineHeight, element.height || 60);
+                // 캔버스 크기 설정 (텍스트 박스 크기 사용)
+                const textWidth = element.width || 200;
+                const textHeight = element.height || 60;
 
                 // 캔버스 크기 설정 (고해상도)
                 const dpi = 2;
