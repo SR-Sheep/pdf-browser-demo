@@ -5,7 +5,6 @@ class PDFEditorApp {
         this.pdfRenderer = new PDFRenderer(document.getElementById('pdf-canvas'));
         this.elementManager = new ElementManager();
         this.dragHandler = new DragHandler(document.getElementById('elements-overlay'), this.elementManager);
-        this.textControls = new TextControls(this.elementManager);
         this.imageHandler = new ImageHandler(this.elementManager);
         this.pdfEditor = new PDFEditor();
         this.toolbar = new Toolbar(this);
@@ -205,7 +204,6 @@ class PDFEditorApp {
         const success = this.elementManager.deleteSelectedElement();
         if (success) {
             this.renderElements();
-            this.textControls.hideControls();
             this.toolbar.disableDeleteButton();
         }
     }
@@ -369,7 +367,6 @@ class PDFEditorApp {
             // 빈 텍스트면 요소 삭제
             this.elementManager.deleteElement(element.id);
             this.renderElements();
-            this.textControls.hideControls();
         }
     }
 
@@ -385,13 +382,6 @@ class PDFEditorApp {
                 elementDiv.classList.add('selected');
             }
 
-            // 텍스트 요소면 컨트롤 표시
-            if (element.type === 'text') {
-                this.textControls.showControls(element);
-            } else {
-                this.textControls.hideControls();
-            }
-
             this.toolbar.enableDeleteButton();
         }
     }
@@ -401,7 +391,6 @@ class PDFEditorApp {
         document.querySelectorAll('.pdf-element').forEach(el => {
             el.classList.remove('selected');
         });
-        this.textControls.hideControls();
         this.toolbar.disableDeleteButton();
     }
 
