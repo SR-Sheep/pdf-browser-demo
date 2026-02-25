@@ -43,6 +43,8 @@ class Toolbar {
         this.imageUploadInput.addEventListener('change', (e) => {
             if (e.target.files.length > 0) {
                 this.app.addImage(e.target.files[0]);
+                // 같은 파일을 다시 선택할 수 있도록 초기화
+                e.target.value = '';
             }
         });
 
