@@ -1,0 +1,19 @@
+# 설정 파일 (로컬 환경마다 다를 수 있음)
+config.json
+
+# Node modules (필요 시)
+node_modules/
+
+# OS 파일
+.DS_Store
+Thumbs.db
+
+# IDE 설정
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 임시 파일
+*.tmp
+*.log
