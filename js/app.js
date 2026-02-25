@@ -35,6 +35,13 @@ class PDFEditorApp {
             }
         });
 
+        // 캔버스 클릭 (텍스트 추가 모드)
+        this.canvas.addEventListener('click', (e) => {
+            if (this.isAddingText) {
+                this.handleAddTextClick(e);
+            }
+        });
+
         // 요소 더블클릭 (텍스트 편집)
         this.overlay.addEventListener('dblclick', (e) => {
             if (!this.isAddingText) {
@@ -44,7 +51,7 @@ class PDFEditorApp {
 
         // 배경 클릭 (선택 해제 또는 텍스트 추가 모드 취소)
         document.getElementById('pdf-editor-container').addEventListener('click', (e) => {
-            if (e.target.id === 'pdf-editor-container' || e.target.id === 'pdf-canvas') {
+            if (e.target.id === 'pdf-editor-container') {
                 if (this.isAddingText) {
                     this.cancelAddTextMode();
                 } else {
@@ -125,9 +132,18 @@ class PDFEditorApp {
             return;
         }
 
-        const rect = this.overlay.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+        // 클릭 위치 계산 (캔버스 또는 오버레이 기준)
+        let rect, x, y;
+
+        if (e.target.id === 'pdf-canvas') {
+            rect = this.canvas.getBoundingClientRect();
+            x = e.clientX - rect.left;
+            y = e.clientY - rect.top;
+        } else {
+            rect = this.overlay.getBoundingClientRect();
+            x = e.clientX - rect.left;
+            y = e.clientY - rect.top;
+        }
 
         // 텍스트 요소 생성
         const element = this.elementManager.addTextElement(
@@ -150,6 +166,8 @@ class PDFEditorApp {
                 this.makeTextEditable(elementDiv, element);
             }
         }, 0);
+
+        e.stopPropagation();
     }
 
     cancelAddTextMode() {
