@@ -89,19 +89,41 @@ class PDFEditor {
                 // 폰트 설정
                 ctx.font = `${element.fontSize}px ${element.fontFamily}`;
 
-                // 여러 줄 텍스트 처리
-                const lines = element.content.split('\n');
                 const lineHeight = element.fontSize * 1.4; // 줄 간격
+                const textWidth = element.width || 200;
+                const maxLineWidth = textWidth - 16; // 좌우 패딩 8px씩
 
-                // 최대 텍스트 너비 계산
-                let maxWidth = 0;
-                lines.forEach(line => {
-                    const metrics = ctx.measureText(line);
-                    maxWidth = Math.max(maxWidth, metrics.width);
+                // 텍스트를 박스 너비에 맞춰 자동 줄바꿈
+                const lines = [];
+                const paragraphs = element.content.split('\n');
+
+                paragraphs.forEach(paragraph => {
+                    if (!paragraph) {
+                        lines.push('');
+                        return;
+                    }
+
+                    const words = paragraph.split(' ');
+                    let currentLine = '';
+
+                    words.forEach((word, index) => {
+                        const testLine = currentLine ? currentLine + ' ' + word : word;
+                        const metrics = ctx.measureText(testLine);
+
+                        if (metrics.width > maxLineWidth && currentLine) {
+                            lines.push(currentLine);
+                            currentLine = word;
+                        } else {
+                            currentLine = testLine;
+                        }
+                    });
+
+                    if (currentLine) {
+                        lines.push(currentLine);
+                    }
                 });
 
                 // 캔버스 크기 설정 (텍스트 박스 크기 사용)
-                const textWidth = element.width || 200;
                 const textHeight = element.height || 60;
 
                 // 캔버스 크기 설정 (고해상도)
@@ -120,9 +142,9 @@ class PDFEditor {
                 ctx.fillStyle = element.color;
                 ctx.textBaseline = 'top';
 
-                // 여러 줄 텍스트 그리기
+                // 여러 줄 텍스트 그리기 (좌우 패딩 8px)
                 lines.forEach((line, index) => {
-                    ctx.fillText(line, 0, index * lineHeight);
+                    ctx.fillText(line, 8, 8 + index * lineHeight);
                 });
 
                 // PNG로 변환
