@@ -103,20 +103,21 @@ class PDFEditor {
                         return;
                     }
 
-                    const words = paragraph.split(' ');
                     let currentLine = '';
 
-                    words.forEach((word, index) => {
-                        const testLine = currentLine ? currentLine + ' ' + word : word;
+                    // 글자 단위로 줄바꿈 처리 (한글 지원)
+                    for (let i = 0; i < paragraph.length; i++) {
+                        const char = paragraph[i];
+                        const testLine = currentLine + char;
                         const metrics = ctx.measureText(testLine);
 
                         if (metrics.width > maxLineWidth && currentLine) {
                             lines.push(currentLine);
-                            currentLine = word;
+                            currentLine = char;
                         } else {
                             currentLine = testLine;
                         }
-                    });
+                    }
 
                     if (currentLine) {
                         lines.push(currentLine);
